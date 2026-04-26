@@ -1,98 +1,141 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { type Href, useRouter } from 'expo-router';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { AccessLogRow, Section, StatCard } from '@/components/gatepass/cards';
+import { PrimaryButton } from '@/components/gatepass/primary-button';
+import { GatePassScreen } from '@/components/gatepass/screen';
+import { accessLogs, activeEvent, getEventStats } from '@/constants/mock-data';
+import { GatePassColors } from '@/constants/theme';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const router = useRouter();
+  const activeEventStats = getEventStats(activeEvent.id);
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  return (
+    <GatePassScreen title="Ingresso evento" subtitle="Stato operativo per lo staff al gate.">
+      <Pressable
+        accessibilityRole="button"
+        onPress={() =>
+          router.push({
+            pathname: '/event/[id]',
+            params: { id: activeEvent.id },
+          } as unknown as Href)
+        }
+        style={({ pressed }) => [styles.activeEventCard, pressed ? styles.pressed : undefined]}>
+        <View style={styles.activeEventHeader}>
+          <Text style={styles.liveBadge}>Live ora</Text>
+          <Text style={styles.activeEventTime}>{activeEvent.time}</Text>
+        </View>
+        <Text style={styles.activeEventTitle}>{activeEvent.name}</Text>
+        <Text style={styles.activeEventVenue}>{activeEvent.venue}</Text>
+        <View style={styles.activeEventStats}>
+          <View>
+            <Text style={styles.activeEventNumber}>{activeEventStats.checkedIn}</Text>
+            <Text style={styles.activeEventLabel}>entrati</Text>
+          </View>
+          <View>
+            <Text style={styles.activeEventNumber}>{activeEventStats.refused}</Text>
+            <Text style={styles.activeEventLabel}>respinti</Text>
+          </View>
+          <View>
+            <Text style={styles.activeEventNumber}>{activeEvent.expectedParticipants}</Text>
+            <Text style={styles.activeEventLabel}>attesi</Text>
+          </View>
+        </View>
+      </Pressable>
+
+      <PrimaryButton label="Apri scanner" size="large" onPress={() => router.push('/scanner' as Href)} />
+
+      <View style={styles.quickActions}>
+        <PrimaryButton
+          label="Vedi partecipanti"
+          variant="neutral"
+          onPress={() => router.push('/participants' as Href)}
+        />
+      </View>
+
+      <View style={styles.statsGrid}>
+        <StatCard label="Check-in effettuati" value={activeEventStats.checkedIn} tone={GatePassColors.success} emphasis />
+        <StatCard label="Accessi respinti" value={activeEventStats.refused} tone={GatePassColors.danger} emphasis />
+      </View>
+
+      <Section title="Ultimi accessi">
+        {accessLogs.slice(0, 3).map((log) => (
+          <AccessLogRow key={log.id} log={log} compact />
+        ))}
+      </Section>
+    </GatePassScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  activeEventCard: {
+    backgroundColor: GatePassColors.primaryDark,
+    borderRadius: 8,
+    gap: 12,
+    padding: 18,
+  },
+  activeEventHeader: {
     alignItems: 'center',
-    gap: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  liveBadge: {
+    backgroundColor: GatePassColors.successSoft,
+    borderRadius: 999,
+    color: GatePassColors.success,
+    fontSize: 12,
+    fontWeight: '900',
+    overflow: 'hidden',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    textTransform: 'uppercase',
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  activeEventTime: {
+    color: '#DBEAFE',
+    fontSize: 15,
+    fontWeight: '900',
+  },
+  activeEventTitle: {
+    color: '#FFFFFF',
+    fontSize: 26,
+    fontWeight: '900',
+    lineHeight: 31,
+  },
+  activeEventVenue: {
+    color: '#BFDBFE',
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  activeEventStats: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 14,
+  },
+  activeEventNumber: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: '900',
+  },
+  activeEventLabel: {
+    color: '#DBEAFE',
+    fontSize: 12,
+    fontWeight: '800',
+    marginTop: 2,
+    textTransform: 'uppercase',
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 12,
+  },
+  quickActions: {
+    marginTop: -6,
+  },
+  pressed: {
+    opacity: 0.86,
   },
 });

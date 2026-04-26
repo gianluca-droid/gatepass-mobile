@@ -5,26 +5,42 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+const tintColorLight = '#175CD3';
+const tintColorDark = '#84CAFF';
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
+    text: '#111827',
+    background: '#F8FAFC',
     tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
+    icon: '#64748B',
+    tabIconDefault: '#64748B',
     tabIconSelected: tintColorLight,
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
+    text: '#F8FAFC',
+    background: '#0F172A',
     tint: tintColorDark,
-    icon: '#9BA1A6',
+    icon: '#CBD5E1',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
   },
+};
+
+export const GatePassColors = {
+  ink: '#0F172A',
+  muted: '#64748B',
+  surface: '#FFFFFF',
+  surfaceSoft: '#F1F5F9',
+  border: '#E2E8F0',
+  primary: '#175CD3',
+  primaryDark: '#123C69',
+  success: '#067647',
+  successSoft: '#DCFAE6',
+  danger: '#B42318',
+  dangerSoft: '#FEE4E2',
+  warning: '#B54708',
+  warningSoft: '#FEF0C7',
 };
 
 export const Fonts = Platform.select({
