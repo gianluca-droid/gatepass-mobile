@@ -1,7 +1,7 @@
 import { type Href, useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { AccessLogRow, Section, StatCard } from '@/components/gatepass/cards';
+import { AccessLogRow, Section } from '@/components/gatepass/cards';
 import { PrimaryButton } from '@/components/gatepass/primary-button';
 import { GatePassScreen } from '@/components/gatepass/screen';
 import { accessLogs, activeEvent, getEventStats } from '@/constants/mock-data';
@@ -12,7 +12,7 @@ export default function HomeScreen() {
   const activeEventStats = getEventStats(activeEvent.id);
 
   return (
-    <GatePassScreen title="Ingresso evento" subtitle="Stato operativo per lo staff al gate.">
+    <GatePassScreen title="Gate mode" subtitle="Postazione ingresso pronta.">
       <Pressable
         accessibilityRole="button"
         onPress={() =>
@@ -23,11 +23,15 @@ export default function HomeScreen() {
         }
         style={({ pressed }) => [styles.activeEventCard, pressed ? styles.pressed : undefined]}>
         <View style={styles.activeEventHeader}>
-          <Text style={styles.liveBadge}>Live ora</Text>
+          <Text style={styles.liveBadge}>Assegnato</Text>
           <Text style={styles.activeEventTime}>{activeEvent.time}</Text>
         </View>
         <Text style={styles.activeEventTitle}>{activeEvent.name}</Text>
         <Text style={styles.activeEventVenue}>{activeEvent.venue}</Text>
+        <View style={styles.gateStatus}>
+          <Text style={styles.gateName}>Ingresso A</Text>
+          <Text style={styles.readyBadge}>Pronto</Text>
+        </View>
         <View style={styles.activeEventStats}>
           <View>
             <Text style={styles.activeEventNumber}>{activeEventStats.checkedIn}</Text>
@@ -52,11 +56,6 @@ export default function HomeScreen() {
           variant="neutral"
           onPress={() => router.push('/participants' as Href)}
         />
-      </View>
-
-      <View style={styles.statsGrid}>
-        <StatCard label="Check-in effettuati" value={activeEventStats.checkedIn} tone={GatePassColors.success} emphasis />
-        <StatCard label="Accessi respinti" value={activeEventStats.refused} tone={GatePassColors.danger} emphasis />
       </View>
 
       <Section title="Ultimi accessi">
@@ -107,6 +106,30 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '800',
   },
+  gateStatus: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 12,
+  },
+  gateName: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '900',
+  },
+  readyBadge: {
+    backgroundColor: GatePassColors.successSoft,
+    borderRadius: 999,
+    color: GatePassColors.success,
+    fontSize: 13,
+    fontWeight: '900',
+    overflow: 'hidden',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    textTransform: 'uppercase',
+  },
   activeEventStats: {
     backgroundColor: 'rgba(255,255,255,0.1)',
     borderRadius: 8,
@@ -125,12 +148,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     marginTop: 2,
     textTransform: 'uppercase',
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    rowGap: 12,
   },
   quickActions: {
     marginTop: -6,

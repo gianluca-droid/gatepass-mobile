@@ -29,7 +29,7 @@ export default function EventDetailScreen() {
   const logs = getAccessLogsByEvent(event.id);
 
   return (
-    <GatePassScreen title={event.name} subtitle={`${event.venue} · ${event.date} · ${event.time}`}>
+    <GatePassScreen title={event.name} subtitle={`${event.venue} - ${event.date} - ${event.time}`}>
       <Stack.Screen options={{ title: event.name }} />
       <EventSummary event={event} />
 

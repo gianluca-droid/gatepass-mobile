@@ -47,7 +47,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="manage"
         options={{
-          title: 'Gestione',
+          title: 'Demo',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="slider.horizontal.3" color={color} />,
         }}
       />

@@ -1,3 +1,4 @@
+import { type Href, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -35,17 +36,11 @@ const results: Record<string, ScanResult> = {
 };
 
 export default function ScannerScreen() {
+  const router = useRouter();
   const [result, setResult] = useState<ScanResult | null>(null);
 
   return (
     <GatePassScreen title="Scanner" subtitle={`Evento assegnato: ${activeEvent.name}.`}>
-      <View style={styles.scannerBox}>
-        <View style={styles.scanFrame}>
-          <Text style={styles.scanText}>QR</Text>
-        </View>
-        <Text style={styles.scannerHint}>Ingresso A - pronto alla scansione</Text>
-      </View>
-
       {result ? (
         <View style={[styles.result, styles[result.tone]]}>
           <Text style={[styles.signal, styles[`${result.tone}Text`]]}>{result.signal}</Text>
@@ -57,6 +52,24 @@ export default function ScannerScreen() {
           <Text style={styles.emptyText}>In attesa di scansione</Text>
         </View>
       )}
+
+      {result ? (
+        <View style={styles.quickActions}>
+          <PrimaryButton label="Scansiona prossimo" size="large" onPress={() => setResult(null)} />
+          <PrimaryButton
+            label={result.tone === 'danger' ? 'Controlla lista' : 'Vedi partecipante'}
+            variant="neutral"
+            onPress={() => router.push('/participants' as Href)}
+          />
+        </View>
+      ) : null}
+
+      <View style={styles.scannerBox}>
+        <View style={styles.scanFrame}>
+          <Text style={styles.scanText}>QR</Text>
+        </View>
+        <Text style={styles.scannerHint}>Ingresso A - pronto alla scansione</Text>
+      </View>
 
       <View style={styles.actions}>
         <PrimaryButton label="Simula QR valido" variant="success" onPress={() => setResult(results.valid)} />
@@ -82,7 +95,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 3,
     justifyContent: 'center',
-    width: '68%',
+    width: '58%',
   },
   scanText: {
     color: '#FFFFFF',
@@ -99,11 +112,11 @@ const styles = StyleSheet.create({
   result: {
     alignItems: 'center',
     borderRadius: 8,
-    borderWidth: 2,
+    borderWidth: 3,
     gap: 8,
     justifyContent: 'center',
-    minHeight: 190,
-    padding: 22,
+    minHeight: 230,
+    padding: 24,
   },
   success: {
     backgroundColor: GatePassColors.successSoft,
@@ -118,9 +131,9 @@ const styles = StyleSheet.create({
     borderColor: GatePassColors.danger,
   },
   signal: {
-    fontSize: 50,
+    fontSize: 64,
     fontWeight: '900',
-    lineHeight: 56,
+    lineHeight: 70,
     textAlign: 'center',
   },
   successText: {
@@ -134,15 +147,15 @@ const styles = StyleSheet.create({
   },
   resultTitle: {
     color: GatePassColors.ink,
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: '900',
     textAlign: 'center',
   },
   resultMessage: {
     color: GatePassColors.ink,
-    fontSize: 17,
+    fontSize: 18,
     fontWeight: '800',
-    lineHeight: 24,
+    lineHeight: 25,
     textAlign: 'center',
   },
   emptyResult: {
@@ -157,6 +170,9 @@ const styles = StyleSheet.create({
     color: GatePassColors.muted,
     fontSize: 16,
     fontWeight: '800',
+  },
+  quickActions: {
+    gap: 10,
   },
   actions: {
     gap: 12,
