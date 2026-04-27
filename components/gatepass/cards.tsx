@@ -75,10 +75,12 @@ export function EventCard({ event }: { event: GatePassEvent }) {
 }
 
 export function ParticipantRow({
+  feedbackLabel,
   participant,
   onManualCheckIn,
   onOverrideCheckIn,
 }: {
+  feedbackLabel?: string;
   participant: Participant;
   onManualCheckIn?: () => void;
   onOverrideCheckIn?: () => void;
@@ -117,6 +119,9 @@ export function ParticipantRow({
         ]}>
         {statusMessage}
       </Text>
+      {feedbackLabel ? (
+        <Text style={styles.participantFeedback}>{feedbackLabel}</Text>
+      ) : null}
       {participant.status === 'valid' && !isWrongGate && onManualCheckIn ? (
         <PrimaryButton
           label="Segna ingresso manuale"
@@ -238,6 +243,16 @@ const styles = StyleSheet.create({
   },
   participantStatusDanger: {
     color: GatePassColors.danger,
+  },
+  participantFeedback: {
+    backgroundColor: GatePassColors.successSoft,
+    borderRadius: 8,
+    color: GatePassColors.success,
+    fontSize: 14,
+    fontWeight: '900',
+    overflow: 'hidden',
+    paddingHorizontal: 12,
+    paddingVertical: 9,
   },
   rowBetween: {
     alignItems: 'center',

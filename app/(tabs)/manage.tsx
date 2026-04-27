@@ -33,7 +33,7 @@ export default function ManageScreen() {
         <View style={styles.panel}>
           <Text style={styles.demoText}>
             Funzione temporanea solo per test/demo: ripristina lo stato mock iniziale
-            dell'app.
+            della app.
           </Text>
           <PrimaryButton label="Reset demo" variant="danger" onPress={resetDemo} />
         </View>

@@ -8,6 +8,10 @@ import { GatePassColors } from '@/constants/theme';
 import { useGatePassStore } from '@/lib/gatepass-store';
 
 type Filter = 'all' | ParticipantStatus;
+type ParticipantFeedback = {
+  participantId: string;
+  label: string;
+} | null;
 
 const filters: { label: string; value: Filter }[] = [
   { label: 'Tutti', value: 'all' },
@@ -19,6 +23,7 @@ const filters: { label: string; value: Filter }[] = [
 export default function ParticipantsTabScreen() {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
+  const [feedback, setFeedback] = useState<ParticipantFeedback>(null);
   const { activeEvent, checkInParticipantManually, getParticipantsByEvent, overrideCheckInParticipant } =
     useGatePassStore();
   const participants = getParticipantsByEvent(activeEvent.id);
@@ -73,8 +78,21 @@ export default function ParticipantsTabScreen() {
           <ParticipantRow
             key={participant.id}
             participant={participant}
-            onManualCheckIn={() => checkInParticipantManually(participant.id)}
-            onOverrideCheckIn={() => overrideCheckInParticipant(participant.id)}
+            feedbackLabel={feedback?.participantId === participant.id ? feedback.label : undefined}
+            onManualCheckIn={() => {
+              const result = checkInParticipantManually(participant.id);
+
+              if (result?.signal === 'OK') {
+                setFeedback({ participantId: participant.id, label: 'Ingresso registrato' });
+              }
+            }}
+            onOverrideCheckIn={() => {
+              const result = overrideCheckInParticipant(participant.id);
+
+              if (result?.signal === 'OK') {
+                setFeedback({ participantId: participant.id, label: 'Override registrato' });
+              }
+            }}
           />
         ))}
       </Section>
