@@ -19,7 +19,8 @@ const filters: { label: string; value: Filter }[] = [
 export default function ParticipantsTabScreen() {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
-  const { activeEvent, getParticipantsByEvent } = useGatePassStore();
+  const { activeEvent, checkInParticipantManually, getParticipantsByEvent, overrideCheckInParticipant } =
+    useGatePassStore();
   const participants = getParticipantsByEvent(activeEvent.id);
 
   const visibleParticipants = useMemo(() => {
@@ -30,6 +31,7 @@ export default function ParticipantsTabScreen() {
       const matchesQuery =
         normalizedQuery.length === 0 ||
         participant.name.toLowerCase().includes(normalizedQuery) ||
+        participant.email.toLowerCase().includes(normalizedQuery) ||
         participant.ticketCode.toLowerCase().includes(normalizedQuery);
 
       return matchesFilter && matchesQuery;
@@ -44,7 +46,7 @@ export default function ParticipantsTabScreen() {
         <TextInput
           value={query}
           onChangeText={setQuery}
-          placeholder="Cerca nome o codice"
+          placeholder="Cerca nome, email o codice"
           placeholderTextColor={GatePassColors.muted}
           style={styles.searchInput}
         />
@@ -68,7 +70,12 @@ export default function ParticipantsTabScreen() {
 
       <Section title={`${visibleParticipants.length} risultati`}>
         {visibleParticipants.map((participant) => (
-          <ParticipantRow key={participant.id} participant={participant} />
+          <ParticipantRow
+            key={participant.id}
+            participant={participant}
+            onManualCheckIn={() => checkInParticipantManually(participant.id)}
+            onOverrideCheckIn={() => overrideCheckInParticipant(participant.id)}
+          />
         ))}
       </Section>
     </GatePassScreen>

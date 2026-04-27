@@ -9,7 +9,7 @@ import { useGatePassStore } from '@/lib/gatepass-store';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { accessLogs, activeEvent, getEventStats } = useGatePassStore();
+  const { accessLogs, activeEvent, activeGate, getEventStats } = useGatePassStore();
   const activeEventStats = getEventStats(activeEvent.id);
 
   return (
@@ -30,7 +30,7 @@ export default function HomeScreen() {
         <Text style={styles.activeEventTitle}>{activeEvent.name}</Text>
         <Text style={styles.activeEventVenue}>{activeEvent.venue}</Text>
         <View style={styles.gateStatus}>
-          <Text style={styles.gateName}>Ingresso A</Text>
+          <Text style={styles.gateName}>{activeGate.name}</Text>
           <Text style={styles.readyBadge}>Pronto</Text>
         </View>
         <View style={styles.activeEventStats}>

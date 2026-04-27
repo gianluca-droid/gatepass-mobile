@@ -1,6 +1,13 @@
 export type EventStatus = 'active' | 'scheduled' | 'closed';
 export type ParticipantStatus = 'valid' | 'checked-in' | 'blocked';
 export type AccessStatus = 'valid' | 'used' | 'invalid';
+export type AccessMethod = 'scan' | 'manual' | 'override';
+export type GateId = 'north' | 'vip' | 'south' | 'staff';
+
+export type Gate = {
+  id: GateId;
+  name: string;
+};
 
 export type GatePassEvent = {
   id: string;
@@ -18,6 +25,9 @@ export type Participant = {
   name: string;
   email: string;
   ticketCode: string;
+  ticketType: string;
+  sector: string;
+  allowedGateId: GateId;
   status: ParticipantStatus;
 };
 
@@ -29,7 +39,18 @@ export type AccessLog = {
   status: AccessStatus;
   time: string;
   gate: string;
+  method?: AccessMethod;
+  reason?: string;
 };
+
+export const gates: Gate[] = [
+  { id: 'north', name: 'Gate Nord' },
+  { id: 'vip', name: 'Gate VIP' },
+  { id: 'south', name: 'Gate Sud' },
+  { id: 'staff', name: 'Gate Staff' },
+];
+
+export const initialGate = gates[0];
 
 export const events: GatePassEvent[] = [
   {
@@ -68,6 +89,9 @@ export const participants: Participant[] = [
     name: 'Giulia Conti',
     email: 'giulia.conti@example.com',
     ticketCode: 'GP-SUM-001',
+    ticketType: 'VIP',
+    sector: 'Tribuna VIP',
+    allowedGateId: 'vip',
     status: 'checked-in',
   },
   {
@@ -76,6 +100,9 @@ export const participants: Participant[] = [
     name: 'Marco Leone',
     email: 'marco.leone@example.com',
     ticketCode: 'GP-SUM-002',
+    ticketType: 'Curva Nord',
+    sector: 'Curva Nord',
+    allowedGateId: 'north',
     status: 'valid',
   },
   {
@@ -84,6 +111,9 @@ export const participants: Participant[] = [
     name: 'Sara Vitale',
     email: 'sara.vitale@example.com',
     ticketCode: 'GP-SUM-003',
+    ticketType: 'Curva Sud',
+    sector: 'Curva Sud',
+    allowedGateId: 'south',
     status: 'blocked',
   },
   {
@@ -92,6 +122,9 @@ export const participants: Participant[] = [
     name: 'Luca Ferri',
     email: 'luca.ferri@example.com',
     ticketCode: 'GP-SUM-004',
+    ticketType: 'Guest',
+    sector: 'Tribuna Ospiti',
+    allowedGateId: 'staff',
     status: 'checked-in',
   },
   {
@@ -100,6 +133,9 @@ export const participants: Participant[] = [
     name: 'Elena Riva',
     email: 'elena.riva@example.com',
     ticketCode: 'GP-DES-001',
+    ticketType: 'Standard',
+    sector: 'Plateatico',
+    allowedGateId: 'north',
     status: 'valid',
   },
   {
@@ -108,6 +144,9 @@ export const participants: Participant[] = [
     name: 'Andrea Russo',
     email: 'andrea.russo@example.com',
     ticketCode: 'GP-FND-001',
+    ticketType: 'Staff',
+    sector: 'Backstage',
+    allowedGateId: 'staff',
     status: 'checked-in',
   },
 ];
@@ -120,7 +159,7 @@ export const accessLogs: AccessLog[] = [
     code: 'GP-SUM-001',
     status: 'valid',
     time: '18:12',
-    gate: 'Ingresso A',
+    gate: 'Gate VIP',
   },
   {
     id: 'a-002',
@@ -129,7 +168,7 @@ export const accessLogs: AccessLog[] = [
     code: 'GP-SUM-003',
     status: 'invalid',
     time: '18:16',
-    gate: 'Ingresso A',
+    gate: 'Gate Sud',
   },
   {
     id: 'a-003',
@@ -138,7 +177,7 @@ export const accessLogs: AccessLog[] = [
     code: 'GP-SUM-004',
     status: 'valid',
     time: '18:21',
-    gate: 'Ingresso B',
+    gate: 'Gate Staff',
   },
   {
     id: 'a-004',
@@ -147,7 +186,7 @@ export const accessLogs: AccessLog[] = [
     code: 'GP-SUM-001',
     status: 'used',
     time: '18:32',
-    gate: 'Ingresso A',
+    gate: 'Gate VIP',
   },
 ];
 

@@ -2,6 +2,7 @@ import { Link, type Href } from 'expo-router';
 import { PropsWithChildren } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { PrimaryButton } from '@/components/gatepass/primary-button';
 import type { AccessLog, GatePassEvent, Participant } from '@/constants/mock-data';
 import { GatePassColors } from '@/constants/theme';
 import { useGatePassStore } from '@/lib/gatepass-store';
@@ -73,12 +74,30 @@ export function EventCard({ event }: { event: GatePassEvent }) {
   );
 }
 
-export function ParticipantRow({ participant }: { participant: Participant }) {
+export function ParticipantRow({
+  participant,
+  onManualCheckIn,
+  onOverrideCheckIn,
+}: {
+  participant: Participant;
+  onManualCheckIn?: () => void;
+  onOverrideCheckIn?: () => void;
+}) {
+  const { activeGate, getGateById } = useGatePassStore();
   const status = {
-    valid: ['Valido', styles.badgeSuccess],
+    valid: ['Da entrare', styles.badgeSuccess],
     'checked-in': ['Entrato', styles.badgePrimary],
     blocked: ['Bloccato', styles.badgeDanger],
   }[participant.status] as [string, object];
+  const allowedGate = getGateById(participant.allowedGateId);
+  const isWrongGate = participant.status === 'valid' && participant.allowedGateId !== activeGate.id;
+  const statusMessage = isWrongGate
+    ? `Gate errato: ingresso consentito da ${allowedGate?.name ?? 'un altro gate'}.`
+    : {
+    valid: 'Pronto per ingresso manuale dal gate consentito.',
+    'checked-in': 'Ingresso gia registrato. Non puo essere segnato di nuovo.',
+    blocked: 'Partecipante bloccato. Non puo entrare.',
+  }[participant.status];
 
   return (
     <View style={styles.card}>
@@ -86,8 +105,32 @@ export function ParticipantRow({ participant }: { participant: Participant }) {
         <Text style={styles.cardTitle}>{participant.name}</Text>
         <Text style={[styles.badge, status[1]]}>{status[0]}</Text>
       </View>
-      <Text style={styles.cardMeta}>{participant.email}</Text>
-      <Text style={styles.cardDetail}>{participant.ticketCode}</Text>
+      <Text style={styles.cardMeta}>{participant.ticketCode}</Text>
+      <Text style={styles.cardDetail}>Tipo ticket: {participant.ticketType}</Text>
+      <Text style={styles.cardDetail}>Settore: {participant.sector}</Text>
+      <Text style={styles.cardDetail}>Gate consentito: {allowedGate?.name ?? 'Gate non trovato'}</Text>
+      <Text style={styles.cardDetail}>{participant.email}</Text>
+      <Text
+        style={[
+          styles.participantStatusMessage,
+          participant.status === 'blocked' ? styles.participantStatusDanger : undefined,
+        ]}>
+        {statusMessage}
+      </Text>
+      {participant.status === 'valid' && !isWrongGate && onManualCheckIn ? (
+        <PrimaryButton
+          label="Segna ingresso manuale"
+          variant="success"
+          onPress={onManualCheckIn}
+        />
+      ) : null}
+      {isWrongGate && onOverrideCheckIn ? (
+        <PrimaryButton
+          label="Override supervisore"
+          variant="neutral"
+          onPress={onOverrideCheckIn}
+        />
+      ) : null}
     </View>
   );
 }
@@ -115,6 +158,11 @@ export function AccessLogRow({ log, compact = false }: { log: AccessLog; compact
       </View>
       <Text style={styles.cardMeta}>{event?.name ?? 'Evento non trovato'}</Text>
       <Text style={styles.cardDetail}>{log.code}</Text>
+      {log.method === 'override' ? (
+        <Text style={styles.cardDetail}>
+          Override supervisore - {log.reason ?? 'Autorizzato da supervisore'}
+        </Text>
+      ) : null}
     </View>
   );
 }
@@ -181,6 +229,15 @@ const styles = StyleSheet.create({
     color: GatePassColors.muted,
     fontSize: 13,
     fontWeight: '700',
+  },
+  participantStatusMessage: {
+    color: GatePassColors.muted,
+    fontSize: 13,
+    fontWeight: '800',
+    lineHeight: 18,
+  },
+  participantStatusDanger: {
+    color: GatePassColors.danger,
   },
   rowBetween: {
     alignItems: 'center',

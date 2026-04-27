@@ -11,12 +11,14 @@ import {
   type Participant,
 } from '@/constants/mock-data';
 import { GatePassColors } from '@/constants/theme';
+import { useGatePassStore } from '@/lib/gatepass-store';
 
 type ManagedParticipant = Participant & {
   qrMock: string;
 };
 
 export default function ManageScreen() {
+  const { activeGate, gates, resetDemo, setActiveGate } = useGatePassStore();
   const [event, setEvent] = useState<GatePassEvent>(activeEvent);
   const [eventName, setEventName] = useState(activeEvent.name);
   const [eventDate, setEventDate] = useState(activeEvent.date);
@@ -52,6 +54,9 @@ export default function ManageScreen() {
       name: participantName.trim() || 'Partecipante mock',
       email: participantEmail.trim() || 'guest@example.com',
       ticketCode,
+      ticketType: 'Standard',
+      sector: 'Settore demo',
+      allowedGateId: activeGate.id,
       status: 'valid',
       qrMock: `QR:${ticketCode}`,
     };
@@ -92,6 +97,34 @@ export default function ManageScreen() {
         <View style={styles.qrBox}>
           <Text style={styles.qrLabel}>Codice generato</Text>
           <Text style={styles.qrCode}>{latestQr}</Text>
+        </View>
+      </Section>
+
+      <Section title="Gate attivo staff">
+        <View style={styles.panel}>
+          <Text style={styles.demoText}>
+            Gate usato da scanner e check-in manuale in questa sessione demo.
+          </Text>
+          <View style={styles.gateOptions}>
+            {gates.map((gate) => (
+              <PrimaryButton
+                key={gate.id}
+                label={gate.name}
+                variant={activeGate.id === gate.id ? 'primary' : 'neutral'}
+                onPress={() => setActiveGate(gate.id)}
+              />
+            ))}
+          </View>
+        </View>
+      </Section>
+
+      <Section title="Strumenti demo">
+        <View style={styles.panel}>
+          <Text style={styles.demoText}>
+            Funzione temporanea solo per test/demo: ripristina partecipanti, check-in e
+            storico accessi allo stato mock iniziale.
+          </Text>
+          <PrimaryButton label="Reset demo" variant="danger" onPress={resetDemo} />
         </View>
       </Section>
 
@@ -197,5 +230,14 @@ const styles = StyleSheet.create({
     color: GatePassColors.ink,
     fontSize: 20,
     fontWeight: '900',
+  },
+  demoText: {
+    color: GatePassColors.muted,
+    fontSize: 14,
+    fontWeight: '700',
+    lineHeight: 20,
+  },
+  gateOptions: {
+    gap: 10,
   },
 });

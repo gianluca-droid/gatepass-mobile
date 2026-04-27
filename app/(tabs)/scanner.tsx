@@ -9,7 +9,7 @@ import { type ScanResult, useGatePassStore } from '@/lib/gatepass-store';
 
 export default function ScannerScreen() {
   const router = useRouter();
-  const { activeEvent, scanTicket } = useGatePassStore();
+  const { activeEvent, activeGate, scanTicket } = useGatePassStore();
   const [result, setResult] = useState<ScanResult | null>(null);
 
   return (
@@ -41,7 +41,7 @@ export default function ScannerScreen() {
         <View style={styles.scanFrame}>
           <Text style={styles.scanText}>QR</Text>
         </View>
-        <Text style={styles.scannerHint}>Ingresso A - pronto alla scansione</Text>
+        <Text style={styles.scannerHint}>{activeGate.name} - pronto alla scansione</Text>
       </View>
 
       <View style={styles.actions}>
