@@ -4,39 +4,12 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { PrimaryButton } from '@/components/gatepass/primary-button';
 import { GatePassScreen } from '@/components/gatepass/screen';
-import { activeEvent } from '@/constants/mock-data';
 import { GatePassColors } from '@/constants/theme';
-
-type ScanResult = {
-  title: string;
-  message: string;
-  tone: 'success' | 'warning' | 'danger';
-  signal: string;
-};
-
-const results: Record<string, ScanResult> = {
-  valid: {
-    title: 'Entra',
-    message: 'Marco Leone - GP-SUM-002',
-    tone: 'success',
-    signal: 'OK',
-  },
-  used: {
-    title: 'Gia usato',
-    message: 'Giulia Conti - check-in gia registrato alle 18:12',
-    tone: 'warning',
-    signal: 'STOP',
-  },
-  invalid: {
-    title: 'Respinto',
-    message: 'Codice non valido per questo evento',
-    tone: 'danger',
-    signal: 'NO',
-  },
-};
+import { type ScanResult, useGatePassStore } from '@/lib/gatepass-store';
 
 export default function ScannerScreen() {
   const router = useRouter();
+  const { activeEvent, scanTicket } = useGatePassStore();
   const [result, setResult] = useState<ScanResult | null>(null);
 
   return (
@@ -72,9 +45,26 @@ export default function ScannerScreen() {
       </View>
 
       <View style={styles.actions}>
-        <PrimaryButton label="Simula QR valido" variant="success" onPress={() => setResult(results.valid)} />
-        <PrimaryButton label="Simula QR gia usato" variant="warning" onPress={() => setResult(results.used)} />
-        <PrimaryButton label="Simula QR non valido" variant="danger" onPress={() => setResult(results.invalid)} />
+        <PrimaryButton
+          label="Simula QR valido"
+          variant="success"
+          onPress={() => setResult(scanTicket('GP-SUM-002'))}
+        />
+        <PrimaryButton
+          label="Simula QR gia usato"
+          variant="warning"
+          onPress={() => setResult(scanTicket('GP-SUM-001'))}
+        />
+        <PrimaryButton
+          label="Simula QR bloccato"
+          variant="danger"
+          onPress={() => setResult(scanTicket('GP-SUM-003'))}
+        />
+        <PrimaryButton
+          label="Simula QR non valido"
+          variant="danger"
+          onPress={() => setResult(scanTicket('GP-FAKE-404'))}
+        />
       </View>
     </GatePassScreen>
   );

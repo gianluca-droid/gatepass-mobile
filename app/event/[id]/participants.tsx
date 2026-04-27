@@ -3,11 +3,12 @@ import { Stack, type Href, useLocalSearchParams, useRouter } from 'expo-router';
 import { ParticipantRow, Section } from '@/components/gatepass/cards';
 import { PrimaryButton } from '@/components/gatepass/primary-button';
 import { GatePassScreen } from '@/components/gatepass/screen';
-import { getEventById, getParticipantsByEvent } from '@/constants/mock-data';
+import { useGatePassStore } from '@/lib/gatepass-store';
 
 export default function ParticipantsScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { getEventById, getParticipantsByEvent } = useGatePassStore();
   const event = getEventById(id);
 
   if (!event) {

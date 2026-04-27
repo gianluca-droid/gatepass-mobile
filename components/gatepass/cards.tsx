@@ -3,8 +3,8 @@ import { PropsWithChildren } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { AccessLog, GatePassEvent, Participant } from '@/constants/mock-data';
-import { getEventById, getParticipantById } from '@/constants/mock-data';
 import { GatePassColors } from '@/constants/theme';
+import { useGatePassStore } from '@/lib/gatepass-store';
 
 export function Section({ title, children }: PropsWithChildren<{ title: string }>) {
   return (
@@ -93,6 +93,7 @@ export function ParticipantRow({ participant }: { participant: Participant }) {
 }
 
 export function AccessLogRow({ log, compact = false }: { log: AccessLog; compact?: boolean }) {
+  const { getEventById, getParticipantById } = useGatePassStore();
   const event = getEventById(log.eventId);
   const participant = getParticipantById(log.participantId);
   const status = {

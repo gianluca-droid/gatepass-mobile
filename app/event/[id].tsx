@@ -4,17 +4,14 @@ import { StyleSheet, Text, View } from 'react-native';
 import { AccessLogRow, Section, StatCard } from '@/components/gatepass/cards';
 import { PrimaryButton } from '@/components/gatepass/primary-button';
 import { GatePassScreen } from '@/components/gatepass/screen';
-import {
-  getAccessLogsByEvent,
-  getEventById,
-  getEventStats,
-  type GatePassEvent,
-} from '@/constants/mock-data';
+import { type GatePassEvent } from '@/constants/mock-data';
 import { GatePassColors } from '@/constants/theme';
+import { useGatePassStore } from '@/lib/gatepass-store';
 
 export default function EventDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { getAccessLogsByEvent, getEventById, getEventStats } = useGatePassStore();
   const event = getEventById(id);
 
   if (!event) {

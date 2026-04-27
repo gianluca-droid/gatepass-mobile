@@ -3,8 +3,9 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { ParticipantRow, Section } from '@/components/gatepass/cards';
 import { GatePassScreen } from '@/components/gatepass/screen';
-import { activeEvent, getParticipantsByEvent, type ParticipantStatus } from '@/constants/mock-data';
+import { type ParticipantStatus } from '@/constants/mock-data';
 import { GatePassColors } from '@/constants/theme';
+import { useGatePassStore } from '@/lib/gatepass-store';
 
 type Filter = 'all' | ParticipantStatus;
 
@@ -18,6 +19,7 @@ const filters: { label: string; value: Filter }[] = [
 export default function ParticipantsTabScreen() {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
+  const { activeEvent, getParticipantsByEvent } = useGatePassStore();
   const participants = getParticipantsByEvent(activeEvent.id);
 
   const visibleParticipants = useMemo(() => {

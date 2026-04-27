@@ -4,11 +4,12 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AccessLogRow, Section } from '@/components/gatepass/cards';
 import { PrimaryButton } from '@/components/gatepass/primary-button';
 import { GatePassScreen } from '@/components/gatepass/screen';
-import { accessLogs, activeEvent, getEventStats } from '@/constants/mock-data';
 import { GatePassColors } from '@/constants/theme';
+import { useGatePassStore } from '@/lib/gatepass-store';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { accessLogs, activeEvent, getEventStats } = useGatePassStore();
   const activeEventStats = getEventStats(activeEvent.id);
 
   return (
