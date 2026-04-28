@@ -1,6 +1,6 @@
 import { type Href, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { PrimaryButton } from '@/components/gatepass/primary-button';
 import { GatePassScreen } from '@/components/gatepass/screen';
@@ -11,6 +11,14 @@ export default function ScannerScreen() {
   const router = useRouter();
   const { activeEvent, activeGate, scanTicket } = useGatePassStore();
   const [result, setResult] = useState<ScanResult | null>(null);
+  const [ticketCode, setTicketCode] = useState('GP-SUM-002');
+
+  function verifyTicket(code = ticketCode) {
+    const nextCode = code.trim().toUpperCase();
+
+    setTicketCode(nextCode);
+    setResult(scanTicket(nextCode));
+  }
 
   return (
     <GatePassScreen title="Scanner" subtitle={`Evento assegnato: ${activeEvent.name}.`}>
@@ -39,31 +47,47 @@ export default function ScannerScreen() {
 
       <View style={styles.scannerBox}>
         <View style={styles.scanFrame}>
-          <Text style={styles.scanText}>QR</Text>
+          <Text style={styles.scanText}>TICKET</Text>
         </View>
-        <Text style={styles.scannerHint}>{activeGate.name} - pronto alla scansione</Text>
+        <Text style={styles.scannerHint}>{activeGate.name} - verifica codice mock</Text>
+      </View>
+
+      <View style={styles.ticketPanel}>
+        <Text style={styles.inputLabel}>Codice ticket</Text>
+        <TextInput
+          autoCapitalize="characters"
+          autoCorrect={false}
+          onChangeText={setTicketCode}
+          onSubmitEditing={() => verifyTicket()}
+          placeholder="GP-SUM-002"
+          placeholderTextColor={GatePassColors.muted}
+          returnKeyType="done"
+          style={styles.ticketInput}
+          value={ticketCode}
+        />
+        <PrimaryButton label="Verifica ticket" size="large" onPress={() => verifyTicket()} />
       </View>
 
       <View style={styles.actions}>
         <PrimaryButton
-          label="Simula QR valido"
+          label="Marco Leone - GP-SUM-002"
           variant="success"
-          onPress={() => setResult(scanTicket('GP-SUM-002'))}
+          onPress={() => verifyTicket('GP-SUM-002')}
         />
         <PrimaryButton
-          label="Simula QR gia usato"
+          label="Ticket gia entrato"
           variant="warning"
-          onPress={() => setResult(scanTicket('GP-SUM-001'))}
+          onPress={() => verifyTicket('GP-SUM-001')}
         />
         <PrimaryButton
-          label="Simula QR bloccato"
+          label="Ticket bloccato"
           variant="danger"
-          onPress={() => setResult(scanTicket('GP-SUM-003'))}
+          onPress={() => verifyTicket('GP-SUM-003')}
         />
         <PrimaryButton
-          label="Simula QR non valido"
+          label="Codice sconosciuto"
           variant="danger"
-          onPress={() => setResult(scanTicket('GP-FAKE-404'))}
+          onPress={() => verifyTicket('GP-FAKE-404')}
         />
       </View>
     </GatePassScreen>
@@ -89,7 +113,7 @@ const styles = StyleSheet.create({
   },
   scanText: {
     color: '#FFFFFF',
-    fontSize: 40,
+    fontSize: 32,
     fontWeight: '900',
     letterSpacing: 0,
   },
@@ -163,6 +187,30 @@ const styles = StyleSheet.create({
   },
   quickActions: {
     gap: 10,
+  },
+  ticketPanel: {
+    backgroundColor: GatePassColors.surface,
+    borderColor: GatePassColors.border,
+    borderRadius: 8,
+    borderWidth: 1,
+    gap: 12,
+    padding: 16,
+  },
+  inputLabel: {
+    color: GatePassColors.ink,
+    fontSize: 14,
+    fontWeight: '900',
+  },
+  ticketInput: {
+    backgroundColor: GatePassColors.surfaceSoft,
+    borderColor: GatePassColors.border,
+    borderRadius: 8,
+    borderWidth: 1,
+    color: GatePassColors.ink,
+    fontSize: 18,
+    fontWeight: '900',
+    minHeight: 54,
+    paddingHorizontal: 12,
   },
   actions: {
     gap: 12,
