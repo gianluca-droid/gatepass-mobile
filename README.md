@@ -1,50 +1,62 @@
-# Welcome to your Expo app 👋
+# GatePass Mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+GatePass Mobile e un'app mobile mock/local per lo staff all'ingresso degli
+eventi. Serve a validare il flusso operativo dell'MVP senza backend, database o
+configurazioni evento reali.
 
-## Get started
+## Stato attuale
 
-1. Install dependencies
+Il progetto si trova in **Fase 1 mock/local**.
 
-   ```bash
-   npm install
-   ```
+In questa fase i dati sono dimostrativi e hardcoded nell'app. L'obiettivo e
+testare il comportamento base dello staff: controllo ingressi, gestione
+partecipanti, verifica gate, override supervisore e storico accessi.
 
-2. Start the app
+## Funzioni implementate
 
-   ```bash
-   npx expo start
-   ```
+- Home staff
+- Scanner mock
+- Check-in manuale
+- Override supervisore
+- Multi-gate mock
+- Partecipanti
+- Storico accessi
+- Reset demo
 
-In the output, you'll find options to open the app in a
+## Non ancora implementato
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Queste funzioni non fanno parte della Fase 1 mock/local:
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- database
+- login/ruoli
+- dashboard admin reale
+- acquisto ticket
+- QR/camera reale
+- gate dinamici configurabili dal gestore
 
-## Get a fresh project
+## Comandi Windows
 
-When you're ready, run:
+Avvio progetto:
 
-```bash
-npm run reset-project
+```powershell
+npm.cmd start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Lint:
 
-## Learn more
+```powershell
+npm.cmd run lint
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Avvio Expo su LAN con cache pulita:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```powershell
+npx.cmd expo start --lan --clear
+```
 
-## Join the community
+Su PowerShell, usare `npm.cmd` e `npx.cmd` se `npm.ps1` o `npx.ps1` sono
+bloccati dalla execution policy del sistema.
 
-Join our community of developers creating universal apps.
+## Roadmap
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+La roadmap funzionale e tecnica si trova in [docs/ROADMAP.md](docs/ROADMAP.md).
