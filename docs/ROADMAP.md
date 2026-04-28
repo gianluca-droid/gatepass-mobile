@@ -43,3 +43,49 @@ le configurazioni effettive di evento, settore e gate consentiti.
 Questa funzione appartiene alla futura dashboard admin e al futuro database. Non
 fa parte della fase mock/local attuale, che serve solo a testare il comportamento
 di base di scanner, check-in manuale, override supervisore e storico accessi.
+
+## Comunicazioni operative interne
+
+Le comunicazioni operative interne sono una funzione futura e non fanno parte
+della Fase 1 mock/local. Non devono essere implementate come chat fittizia o
+flusso locale definitivo finche non saranno disponibili login, ruoli e database.
+
+In futuro, ogni messaggio dovra essere associato automaticamente all'utente
+loggato e al suo ruolo operativo, per esempio:
+
+- hostess/steward
+- supervisore
+- admin evento
+- security
+
+La funzione potra includere:
+
+- messaggi testuali tra operatori
+- avvisi admin verso uno o piu gate
+- segnalazioni operative
+- richieste di supporto
+- richieste o note per override supervisore
+- messaggi vocali rapidi per chi lavora all'ingresso
+- storico comunicazioni evento
+
+Ogni messaggio, testuale o vocale, dovra salvare almeno:
+
+- autore
+- ruolo
+- evento
+- gate
+- ora
+- contenuto o audio
+- eventuale ticket collegato
+- eventuale motivo operativo
+
+I messaggi vocali rapidi sono utili per lo staff all'ingresso perche gli
+operatori possono avere fretta, rumore intorno, code da gestire o mani occupate.
+Questa funzione richiedera pero componenti futuri non presenti nella Fase 1:
+
+- permessi microfono
+- storage audio
+- database
+- login/ruoli
+- notifiche o realtime
+- eventuale trascrizione
