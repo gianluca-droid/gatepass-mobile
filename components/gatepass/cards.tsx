@@ -75,11 +75,13 @@ export function EventCard({ event }: { event: GatePassEvent }) {
 }
 
 export function ParticipantRow({
+  entryLog,
   feedbackLabel,
   participant,
   onManualCheckIn,
   onOverrideCheckIn,
 }: {
+  entryLog?: AccessLog;
   feedbackLabel?: string;
   participant: Participant;
   onManualCheckIn?: () => void;
@@ -93,6 +95,9 @@ export function ParticipantRow({
   }[participant.status] as [string, object];
   const allowedGate = getGateById(participant.allowedGateId);
   const isWrongGate = participant.status === 'valid' && participant.allowedGateId !== activeGate.id;
+  const entryGate = entryLog ? normalizeGateName(entryLog.gate) : undefined;
+  const entryMethod = entryLog?.method ? accessMethodLabel[entryLog.method] : 'Storico accessi';
+  const hasGateException = Boolean(entryGate && allowedGate?.name && entryGate !== allowedGate.name);
   const statusMessage = isWrongGate
     ? `Gate errato: ingresso consentito da ${allowedGate?.name ?? 'un altro gate'}.`
     : {
@@ -122,6 +127,27 @@ export function ParticipantRow({
       {feedbackLabel ? (
         <Text style={styles.participantFeedback}>{feedbackLabel}</Text>
       ) : null}
+      {entryLog ? (
+        <View style={styles.entryPanel}>
+          <View style={styles.entryHeader}>
+            <Text style={styles.entryTitle}>Ingresso registrato</Text>
+            {entryLog.method === 'override' ? (
+              <Text style={[styles.badge, styles.badgeWarning]}>Override</Text>
+            ) : null}
+          </View>
+          <Text style={styles.cardDetail}>Metodo: {entryMethod}</Text>
+          <Text style={styles.cardDetail}>Gate usato: {entryLog.gate}</Text>
+          <Text style={styles.cardDetail}>Ora ingresso: {entryLog.time}</Text>
+          {entryLog.reason ? (
+            <Text style={styles.cardDetail}>Motivo override: {entryLog.reason}</Text>
+          ) : null}
+          {hasGateException ? (
+            <Text style={styles.entryWarning}>
+              Gate diverso da quello consentito: consentito {allowedGate?.name}, usato {entryGate}.
+            </Text>
+          ) : null}
+        </View>
+      ) : null}
       {participant.status === 'valid' && !isWrongGate && onManualCheckIn ? (
         <PrimaryButton
           label="Segna ingresso manuale"
@@ -138,6 +164,16 @@ export function ParticipantRow({
       ) : null}
     </View>
   );
+}
+
+const accessMethodLabel = {
+  scan: 'Scanner',
+  manual: 'Manuale',
+  override: 'Override supervisore',
+};
+
+function normalizeGateName(gate: AccessLog['gate']) {
+  return gate.replace(' - manuale', '');
 }
 
 export function AccessLogRow({ log, compact = false }: { log: AccessLog; compact?: boolean }) {
@@ -253,6 +289,37 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     paddingHorizontal: 12,
     paddingVertical: 9,
+  },
+  entryPanel: {
+    backgroundColor: GatePassColors.surfaceSoft,
+    borderColor: GatePassColors.border,
+    borderRadius: 8,
+    borderWidth: 1,
+    gap: 6,
+    padding: 12,
+  },
+  entryHeader: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 8,
+    justifyContent: 'space-between',
+  },
+  entryTitle: {
+    color: GatePassColors.ink,
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '900',
+  },
+  entryWarning: {
+    backgroundColor: GatePassColors.warningSoft,
+    borderRadius: 8,
+    color: GatePassColors.warning,
+    fontSize: 13,
+    fontWeight: '900',
+    lineHeight: 18,
+    overflow: 'hidden',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
   },
   rowBetween: {
     alignItems: 'center',

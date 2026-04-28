@@ -1,13 +1,13 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { ParticipantRow, Section } from '@/components/gatepass/cards';
 import { GatePassScreen } from '@/components/gatepass/screen';
-import { type ParticipantStatus } from '@/constants/mock-data';
+import { type AccessLog, type Participant, type ParticipantStatus } from '@/constants/mock-data';
 import { GatePassColors } from '@/constants/theme';
 import { useGatePassStore } from '@/lib/gatepass-store';
 
-type Filter = 'all' | ParticipantStatus;
+type Filter = 'all' | ParticipantStatus | 'exceptions';
 type ParticipantFeedback = {
   participantId: string;
   label: string;
@@ -18,21 +18,52 @@ const filters: { label: string; value: Filter }[] = [
   { label: 'Da entrare', value: 'valid' },
   { label: 'Entrati', value: 'checked-in' },
   { label: 'Bloccati', value: 'blocked' },
+  { label: 'Eccezioni', value: 'exceptions' },
 ];
 
 export default function ParticipantsTabScreen() {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
   const [feedback, setFeedback] = useState<ParticipantFeedback>(null);
-  const { activeEvent, checkInParticipantManually, getParticipantsByEvent, overrideCheckInParticipant } =
-    useGatePassStore();
+  const {
+    accessLogs,
+    activeEvent,
+    checkInParticipantManually,
+    getGateById,
+    getParticipantsByEvent,
+    overrideCheckInParticipant,
+  } = useGatePassStore();
   const participants = getParticipantsByEvent(activeEvent.id);
+
+  const getParticipantEntryLog = useCallback((participantId: string) => {
+    return accessLogs.find(
+      (log) =>
+        log.eventId === activeEvent.id &&
+        log.participantId === participantId &&
+        log.status === 'valid'
+    );
+  }, [accessLogs, activeEvent.id]);
+
+  const hasException = useCallback((participant: Participant) => {
+    const entryLog = getParticipantEntryLog(participant.id);
+
+    if (!entryLog) {
+      return false;
+    }
+
+    const allowedGate = getGateById(participant.allowedGateId);
+    const usedGate = normalizeGateName(entryLog.gate);
+
+    return entryLog.method === 'override' || usedGate !== allowedGate?.name;
+  }, [getGateById, getParticipantEntryLog]);
 
   const visibleParticipants = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
     return participants.filter((participant) => {
-      const matchesFilter = filter === 'all' || participant.status === filter;
+      const matchesFilter =
+        filter === 'all' ||
+        (filter === 'exceptions' ? hasException(participant) : participant.status === filter);
       const matchesQuery =
         normalizedQuery.length === 0 ||
         participant.name.toLowerCase().includes(normalizedQuery) ||
@@ -41,7 +72,7 @@ export default function ParticipantsTabScreen() {
 
       return matchesFilter && matchesQuery;
     });
-  }, [filter, participants, query]);
+  }, [filter, hasException, participants, query]);
 
   return (
     <GatePassScreen
@@ -77,6 +108,7 @@ export default function ParticipantsTabScreen() {
         {visibleParticipants.map((participant) => (
           <ParticipantRow
             key={participant.id}
+            entryLog={getParticipantEntryLog(participant.id)}
             participant={participant}
             feedbackLabel={feedback?.participantId === participant.id ? feedback.label : undefined}
             onManualCheckIn={() => {
@@ -98,6 +130,10 @@ export default function ParticipantsTabScreen() {
       </Section>
     </GatePassScreen>
   );
+}
+
+function normalizeGateName(gate: AccessLog['gate']) {
+  return gate.replace(' - manuale', '');
 }
 
 const styles = StyleSheet.create({
